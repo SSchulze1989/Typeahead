@@ -16,6 +16,9 @@ namespace Blazored.Typeahead
         private bool _eventsHookedUp = false;
         private ElementReference _searchInput;
         private ElementReference _mask;
+        private IReadOnlyDictionary<string, object> _capturedAttributes = default!;
+        private string _classAttribute = string.Empty;
+        private string _styleAttribute = string.Empty;
         private IEqualityComparer<TValue> _valueComparer = EqualityComparer<TValue>.Default;
 
         [Inject] private IJSRuntime JSRuntime { get; set; }
@@ -121,6 +124,8 @@ namespace Blazored.Typeahead
                 throw new InvalidOperationException($"{GetType()} requires a {nameof(ResultTemplate)} parameter.");
             }
 
+            _capturedAttributes = CaptureCssAttributes(AdditionalAttributes);
+
             _debounceTimer = new System.Timers.Timer();
             _debounceTimer.Interval = Debounce;
             _debounceTimer.AutoReset = false;
@@ -150,6 +155,22 @@ namespace Blazored.Typeahead
             SearchText = "";
             IsShowingSuggestions = false;
             IsShowingMask = Value != null;
+        }
+
+        private IReadOnlyDictionary<string, object> CaptureCssAttributes(IReadOnlyDictionary<string, object> additionalAttributes)
+        {
+            var capturedAttributes = additionalAttributes.ToDictionary(k => k.Key, v => v.Value);
+            if (capturedAttributes.ContainsKey("class"))
+            {
+                _classAttribute = Convert.ToString(capturedAttributes["class"]) ?? string.Empty;
+                capturedAttributes.Remove("class");
+            }
+            if (capturedAttributes.ContainsKey("style"))
+            {
+                _styleAttribute = Convert.ToString(capturedAttributes["style"]) ?? string.Empty;
+                capturedAttributes.Remove("style");
+            }
+            return capturedAttributes;
         }
 
         private async Task RemoveValue(TValue item)
