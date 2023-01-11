@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<NoWarn>8602,8603,8618,8622</NoWarn>
 
     <Authors>Chris Sainty</Authors>
     <Company></Company>
